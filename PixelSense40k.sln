@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelSense40k", "PixelSense40k\PixelSense40k.csproj", "{F9EA07F1-0BC6-4BB2-BD62-9B3F2B8D621B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9EA07F1-0BC6-4BB2-BD62-9B3F2B8D621B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9EA07F1-0BC6-4BB2-BD62-9B3F2B8D621B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9EA07F1-0BC6-4BB2-BD62-9B3F2B8D621B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9EA07F1-0BC6-4BB2-BD62-9B3F2B8D621B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
