@@ -21,19 +21,39 @@ namespace PixelSense40k
     /// <summary>
     /// Interaction logic for SurfaceWindow1.xaml
     /// </summary>
+    /// 
     public partial class SurfaceWindow1 : SurfaceWindow
     {
+        private Unit[] units;
         /// <summary>
         /// Default constructor.
         /// </summary>
+        ///
         public SurfaceWindow1()
         {
             InitializeComponent();
-
+            CreateUnits();
             // Add handlers for window availability events
             AddWindowAvailabilityHandlers();
         }
 
+        public void CreateUnits(){
+            units = new Unit[1];
+            Infantry Seraphicus = new Infantry("Inquisitor-Chaplain Seraphicus", 0);
+            Seraphicus.WS = 5;
+            Seraphicus.BS = 5;
+            Seraphicus.S = 4;
+            Seraphicus.T = 4;
+            Seraphicus.W = 3;
+            Seraphicus.I = 5;
+            Seraphicus.A = 3;
+            Seraphicus.Ld = 10;
+            Seraphicus.Sv = 4;
+            Seraphicus.SvType = 2;
+            Seraphicus.Faction = 1;
+            Seraphicus.UnitID = 0;
+            units[0] = Seraphicus;
+        }
         /// <summary>
         /// Occurs when the window is about to close. 
         /// </summary>
