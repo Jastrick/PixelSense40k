@@ -95,6 +95,15 @@ namespace PixelSense40k
             else{
                 taggedUnit.Faction.Content = "Chaos Space Marines";
             }
+            taggedUnit.charWS.Content = "" + units[taggedUnit.VisualizedTag.Value].WS;
+            taggedUnit.charBS.Content = "" + units[taggedUnit.VisualizedTag.Value].BS;
+            taggedUnit.charS.Content = "" + units[taggedUnit.VisualizedTag.Value].S;
+            taggedUnit.charT.Content = "" + units[taggedUnit.VisualizedTag.Value].T;
+            taggedUnit.charW.Content = "" + units[taggedUnit.VisualizedTag.Value].W;
+            taggedUnit.charI.Content = "" + units[taggedUnit.VisualizedTag.Value].I;
+            taggedUnit.charA.Content = "" + units[taggedUnit.VisualizedTag.Value].A;
+            taggedUnit.charLd.Content = "" + units[taggedUnit.VisualizedTag.Value].Ld;
+            taggedUnit.charSv.Content = "" + units[taggedUnit.VisualizedTag.Value].Sv + "+";
         }
         /// <summary>
         /// Occurs when the window is about to close. 
@@ -160,11 +169,6 @@ namespace PixelSense40k
         private void OnWindowUnavailable(object sender, EventArgs e)
         {
             //TODO: disable audio, animations here
-        }
-
-        public Unit getUnit(int i)
-        {
-            return units[i];
         }
     }
 }

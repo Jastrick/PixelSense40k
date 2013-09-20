@@ -3,13 +3,58 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:s="http://schemas.microsoft.com/surface/2008"
     Loaded="UnitVisualization_Loaded"
-    Height="400"
-    Width="300">
-    <Grid>
-            <Rectangle Name="myRectangle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-            <Label Name = "UnitName" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <Image Name="Photo" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <Label Name="Faction" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+    Height="330"
+    Width="150">
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="15" />
+            <RowDefinition Height="150" />
+            <RowDefinition Height="15" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Rectangle Name="myRectangle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="Firebrick"/>
+        <Label Name = "UnitName" HorizontalAlignment="Center" FontSize="8" Grid.Row="0" FontFamily="Resources/#Caslon Antique"/>
+        <Image Name="Photo" HorizontalAlignment="Center"  Grid.Row="1"/>
+        <Rectangle Name="Rectangle2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="Firebrick" Grid.Row ="2"/>
+        <Label Name="Faction" HorizontalAlignment="Center" FontSize="8" FontFamily="Resources/#Caslon Antique" Grid.Row="2"/>
+        <Rectangle Name="Rectangle3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="Firebrick" Grid.Row="3"/>
+        <StackPanel Grid.Row="3">
+            <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="15" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="15" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+                <Label Content="WS" Grid.Row="0" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Content="BS" Grid.Row="1" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Content="S" Grid.Row="2" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Content="T" Grid.Row="3" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Content="W" Grid.Row="4" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Content="I" Grid.Row="5" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Content="A" Grid.Row="6" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Content="Ld" Grid.Row="7" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Content="Sv" Grid.Row="8" Grid.Column="0" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charWS" Grid.Row="0" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charBS" Grid.Row="1" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charS" Grid.Row="2" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charT" Grid.Row="3" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charW" Grid.Row="4" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charI" Grid.Row="5" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charA" Grid.Row="6" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charLd" Grid.Row="7" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="charSv" Grid.Row="8" Grid.Column="1" FontSize="8" FontFamily="Resources/#Caslon Antique"/>
 
+        </Grid>
+        </StackPanel>
     </Grid>
 </s:TagVisualization>

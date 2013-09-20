@@ -101,6 +101,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <Resource Include="Resources\CASLANTI.TTF" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\seraphicus.jpg" />
