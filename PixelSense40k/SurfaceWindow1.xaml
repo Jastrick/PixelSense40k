@@ -5,6 +5,14 @@
     Title="PixelSense40k"
     >
   <Grid>
-
-  </Grid>
+        <s:TagVisualizer 
+            Name="MyTagVisualizer" 
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Stretch"
+            Background="Black" 
+            Height="Auto" Width="Auto"
+            VisualizationAdded="OnVisualizationAdded"
+            >
+        </s:TagVisualizer>
+    </Grid>
 </s:SurfaceWindow>

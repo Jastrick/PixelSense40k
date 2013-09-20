@@ -3,9 +3,10 @@ using Microsoft.Surface.Presentation.Input;
 
 public class Unit
 {
-    private int unitID;
+    private long unitID;
     private int maxMove;
     private String name;
+    private String photo;
     private int faction;
     private int ws, bs, s, t, w, i, a, ld, sv, svType;
 
@@ -13,7 +14,13 @@ public class Unit
 	{
 	}
 
-    public int UnitID
+    public String Photo
+    {
+        get { return photo; }
+        set { photo = value; }
+    }
+
+    public long UnitID
     {
         get { return unitID; }
         set { unitID = value; }

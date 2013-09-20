@@ -24,7 +24,7 @@ namespace PixelSense40k
     /// 
     public partial class SurfaceWindow1 : SurfaceWindow
     {
-        private Unit[] units;
+        public Unit[] units;
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -32,6 +32,7 @@ namespace PixelSense40k
         public SurfaceWindow1()
         {
             InitializeComponent();
+            InitializeDefinitions();
             CreateUnits();
             // Add handlers for window availability events
             AddWindowAvailabilityHandlers();
@@ -39,7 +40,8 @@ namespace PixelSense40k
 
         public void CreateUnits(){
             units = new Unit[1];
-            Infantry Seraphicus = new Infantry("Inquisitor-Chaplain Seraphicus", 0);
+            Infantry Seraphicus = new Infantry("Interrogator-Chaplain Seraphicus", 0);
+            Seraphicus.Photo = "Resources/seraphicus.jpg";
             Seraphicus.WS = 5;
             Seraphicus.BS = 5;
             Seraphicus.S = 4;
@@ -53,6 +55,46 @@ namespace PixelSense40k
             Seraphicus.Faction = 1;
             Seraphicus.UnitID = 0;
             units[0] = Seraphicus;
+        }
+
+        private void InitializeDefinitions()
+        {
+            TagVisualizationDefinition tagDef =
+                    new TagVisualizationDefinition();
+            // The tag value that this definition will respond to.
+            tagDef.Value = 0;
+            // The .xaml file for the UI
+            tagDef.Source =
+                new Uri("UnitVisualization.xaml", UriKind.Relative);
+            // The maximum number for this tag value.
+            tagDef.MaxCount = 2;
+            // The visualization stays for 2 seconds.
+            tagDef.LostTagTimeout = 2000.0;
+            // Orientation offset (default).
+            tagDef.OrientationOffsetFromTag = 0.0;
+            // Physical offset (horizontal inches, vertical inches).
+            tagDef.PhysicalCenterOffsetFromTag = new Vector(2.0, 2.0);
+            // Tag removal behavior (default).
+            tagDef.TagRemovedBehavior = TagRemovedBehavior.Fade;
+            // Orient UI to tag? (default).
+            tagDef.UsesTagOrientation = true;
+            // Add the definition to the collection.
+            MyTagVisualizer.Definitions.Add(tagDef);
+        }
+
+        private void OnVisualizationAdded(object sender, TagVisualizerEventArgs e)
+        {
+            UnitVisualization taggedUnit = (UnitVisualization)e.TagVisualization;
+            taggedUnit.UnitName.Content = units[taggedUnit.VisualizedTag.Value].Name;
+            BitmapImage testImage = new BitmapImage(new Uri(units[taggedUnit.VisualizedTag.Value].Photo, UriKind.Relative)); //Change for your PC
+            taggedUnit.Photo.Source = testImage;
+            if (units[taggedUnit.VisualizedTag.Value].Faction == 1)
+            {
+                taggedUnit.Faction.Content = "Dark Angels Space Marines";
+            }
+            else{
+                taggedUnit.Faction.Content = "Chaos Space Marines";
+            }
         }
         /// <summary>
         /// Occurs when the window is about to close. 
@@ -118,6 +160,11 @@ namespace PixelSense40k
         private void OnWindowUnavailable(object sender, EventArgs e)
         {
             //TODO: disable audio, animations here
+        }
+
+        public Unit getUnit(int i)
+        {
+            return units[i];
         }
     }
 }
