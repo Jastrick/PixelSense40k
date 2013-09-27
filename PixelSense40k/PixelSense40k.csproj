@@ -56,6 +56,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Bike.cs" />
     <Compile Include="Infantry.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="UnitVisualization.xaml.cs">
@@ -104,7 +105,41 @@
     <Resource Include="Resources\CASLANTI.TTF" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\tetchvarhs.jpg" />
+    <Resource Include="Resources\tetchvar78.jpg" />
+    <Resource Include="Resources\tetchvar35.jpg" />
+    <Resource Include="Resources\tetchvar26.jpg" />
+    <Resource Include="Resources\tetchvar14.jpg" />
+    <Resource Include="Resources\tetchvar.jpg" />
+    <Resource Include="Resources\mortismetalkus.jpg" />
+    <Resource Include="Resources\kranon.jpg" />
+    <Resource Include="Resources\ravenwingpg.jpg" />
+    <Resource Include="Resources\ravenwingbp.jpg" />
+    <Resource Include="Resources\termcf.jpg" />
+    <Resource Include="Resources\termac.jpg" />
+    <Resource Include="Resources\term.jpg" />
+    <Resource Include="Resources\raphael.jpg" />
+    <Resource Include="Resources\marinepg.jpg" />
+    <Resource Include="Resources\marinepc.jpg" />
+    <Resource Include="Resources\marine37.jpg" />
+    <Resource Include="Resources\marine246.jpg" />
+    <Resource Include="Resources\marine15.jpg" />
+    <Resource Include="Resources\turmiel.jpg" />
     <Resource Include="Resources\seraphicus.jpg" />
+    <Resource Include="Resources\balthasar.jpg" />
+    <Resource Include="Resources\barachiel.jpg" />
+    <Resource Include="Resources\arion.jpg" />
+    <Resource Include="Resources\chosen.jpg" />
+    <Resource Include="Resources\chosenlc.jpg" />
+    <Resource Include="Resources\chosenpa.jpg" />
+    <Resource Include="Resources\chosenpf.jpg" />
+    <Resource Include="Resources\draznicht.jpg" />
+    <Resource Include="Resources\anarkus.jpg" />
+    <Resource Include="Resources\anarkus15.jpg" />
+    <Resource Include="Resources\anarkus26.jpg" />
+    <Resource Include="Resources\anarkus34.jpg" />
+    <Resource Include="Resources\anarkus78.jpg" />
+    <Resource Include="Resources\anarkusfla.jpg" />
     <Content Include="Resources\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
