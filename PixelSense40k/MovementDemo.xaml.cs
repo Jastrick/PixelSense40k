@@ -19,38 +19,35 @@ using Microsoft.Surface.Presentation.Input;
 namespace PixelSense40k
 {
     /// <summary>
-    /// Interaction logic for SurfaceWindow1.xaml
+    /// Interaction logic for MovementDemo.xaml
     /// </summary>
-    public partial class SurfaceWindow1 : SurfaceWindow
+    public partial class MovementDemo : SurfaceWindow
     {
+        private SurfaceWindow1 parent;
         /// <summary>
         /// Default constructor.
         /// </summary>
-        /// 
-        private UnitVisualizer unVis;
-        private MovementDemo movDem;
-        public SurfaceWindow1()
+        public MovementDemo()
         {
             InitializeComponent();
 
             // Add handlers for window availability events
             AddWindowAvailabilityHandlers();
-            unVis = new UnitVisualizer();
-            movDem = new MovementDemo();
-            unVis.SetParent(this);
-            movDem.SetParent(this);
+        }
+        
+        public void SetParent(SurfaceWindow1 w)
+        {
+            parent = w;
         }
 
-        private void LoadUV(object sender, RoutedEventArgs e)
+        private void BackClick(object sender, RoutedEventArgs e)
         {
-            unVis.Show();
+            parent.Show();
             this.Hide();
         }
 
-        private void LoadMD(object sender, RoutedEventArgs e)
+        private void OnVisualizationAdded(object sender, TagVisualizerEventArgs e)
         {
-            movDem.Show();
-            this.Hide();
         }
         /// <summary>
         /// Occurs when the window is about to close. 
@@ -58,8 +55,6 @@ namespace PixelSense40k
         /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
-            unVis.Close();
-            movDem.Close();
             base.OnClosed(e);
 
             // Remove handlers for window availability events

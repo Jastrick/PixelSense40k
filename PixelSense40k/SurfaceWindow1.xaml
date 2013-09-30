@@ -4,15 +4,20 @@
     xmlns:s="http://schemas.microsoft.com/surface/2008"
     Title="PixelSense40k"
     >
-  <Grid>
-        <s:TagVisualizer 
-            Name="MyTagVisualizer" 
-            VerticalAlignment="Stretch"
-            HorizontalAlignment="Stretch"
-            Background="Black" 
-            Height="Auto" Width="Auto"
-            VisualizationAdded="OnVisualizationAdded"
-            >
-        </s:TagVisualizer>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="104" />
+            <RowDefinition Height="200" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Label Content="PixelSense 40K" Grid.Row="0" HorizontalAlignment="Center" FontSize="104" FontFamily="Resources/#Caslon Antique"/>
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+                <RowDefinition Height="60" />
+            </Grid.RowDefinitions>
+            <s:SurfaceButton Name="UVloader" Grid.Row ="0" Content="Unit Visualizer" HorizontalAlignment="Center" VerticalAlignment="Center" Click="LoadUV"/>
+        <s:SurfaceButton Name="MDLoader" Grid.Row ="1" Content="Movement Demo" HorizontalAlignment="Center" VerticalAlignment="Center" Click="LoadMD"/>
+        </Grid>     
     </Grid>
 </s:SurfaceWindow>
