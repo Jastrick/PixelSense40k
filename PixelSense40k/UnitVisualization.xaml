@@ -35,15 +35,15 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-                <Label Content="WS" Grid.Row="0" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
-                <Label Content="BS" Grid.Row="1" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
-                <Label Content="S" Grid.Row="2" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
-                <Label Content="T" Grid.Row="3" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
-                <Label Content="W" Grid.Row="4" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
-                <Label Content="I" Grid.Row="5" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
-                <Label Content="A" Grid.Row="6" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
-                <Label Content="Ld" Grid.Row="7" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
-                <Label Content="Sv" Grid.Row="8" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat1" Content="WS" Grid.Row="0" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat2" Content="BS" Grid.Row="1" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat3" Content="S" Grid.Row="2" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat4" Content="T" Grid.Row="3" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat5" Content="W" Grid.Row="4" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat6" Content="I" Grid.Row="5" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat7" Content="A" Grid.Row="6" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat8" Content="Ld" Grid.Row="7" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
+                <Label Name="cat9" Content="Sv" Grid.Row="8" Grid.Column="0" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
                 <Label Name="charWS" Grid.Row="0" Grid.Column="1" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
                 <Label Name="charBS" Grid.Row="1" Grid.Column="1" FontSize="10" FontFamily="Resources/#Caslon Antique"/>
                 <Label Name="charS" Grid.Row="2" Grid.Column="1" FontSize="10" FontFamily="Resources/#Caslon Antique"/>

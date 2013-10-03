@@ -55,7 +55,7 @@ namespace PixelSense40k
         /// </summary>
         /// 
         public void CreateUnits(){
-            units = new Unit[0X3A];
+            units = new Unit[0X31];
             Infantry Seraphicus = new Infantry("Interrogator-Chaplain Seraphicus", 0);
             Seraphicus.Photo = "Resources/seraphicus.jpg";
             Seraphicus.WS = 5;
@@ -364,18 +364,17 @@ namespace PixelSense40k
             Kranon.SvType = 2;
             Kranon.Faction = 2;
             units[0x15] = Kranon;
-            Infantry Mortis = new Infantry("Mortis Metalikus", 0x16);
+            Mech Mortis = new Mech("Mortis Metalikus", 0x16);
             Mortis.Photo = "Resources/mortismetalkus.jpg";
             Mortis.WS = 4;
             Mortis.BS = 4;
             Mortis.S = 6;
-            Mortis.T = 12;
-            Mortis.W = 3;
-            Mortis.I = 5;
-            Mortis.A = 3;
-            Mortis.Ld = 0;
-            Mortis.Sv = 3;
-            Mortis.SvType = 1;
+            Mortis.FA = 12;
+            Mortis.SA = 12;
+            Mortis.RA = 10;
+            Mortis.I = 4;
+            Mortis.A = 2;
+            Mortis.HP = 3;
             Mortis.Faction = 2;
             units[0x16] = Mortis;
             Infantry Draznicht = new Infantry("Draznicht, Chosen Champion", 0x17);
@@ -748,7 +747,7 @@ namespace PixelSense40k
         /// </summary>
         private void InitializeDefinitions()
         {
-            for (int tagVal = 0; tagVal < 255; tagVal++)
+            for (int tagVal = 0; tagVal < 0X31; tagVal++)
             {
                 TagVisualizationDefinition tagDef =
                         new TagVisualizationDefinition();
@@ -791,15 +790,38 @@ namespace PixelSense40k
             else{
                 taggedUnit.Faction.Content = "Chaos Space Marines";
             }
-            taggedUnit.charWS.Content = "" + units[taggedUnit.VisualizedTag.Value].WS;
-            taggedUnit.charBS.Content = "" + units[taggedUnit.VisualizedTag.Value].BS;
-            taggedUnit.charS.Content = "" + units[taggedUnit.VisualizedTag.Value].S;
-            taggedUnit.charT.Content = "" + units[taggedUnit.VisualizedTag.Value].T;
-            taggedUnit.charW.Content = "" + units[taggedUnit.VisualizedTag.Value].W;
-            taggedUnit.charI.Content = "" + units[taggedUnit.VisualizedTag.Value].I;
-            taggedUnit.charA.Content = "" + units[taggedUnit.VisualizedTag.Value].A;
-            taggedUnit.charLd.Content = "" + units[taggedUnit.VisualizedTag.Value].Ld;
-            taggedUnit.charSv.Content = "" + units[taggedUnit.VisualizedTag.Value].Sv + "+";
+
+            if (units[taggedUnit.VisualizedTag.Value] is Mech)
+            {
+                Mech testMech = (Mech)units[taggedUnit.VisualizedTag.Value];
+                taggedUnit.cat4.Content = "FA";
+                taggedUnit.cat5.Content = "SA";
+                taggedUnit.cat6.Content = "RA";
+                taggedUnit.cat7.Content = "I";
+                taggedUnit.cat8.Content = "A";
+                taggedUnit.cat9.Content = "HP";
+                taggedUnit.charWS.Content = "" + testMech.WS;
+                taggedUnit.charBS.Content = "" + testMech.BS;
+                taggedUnit.charS.Content = "" + testMech.S;
+                taggedUnit.charT.Content = "" + testMech.FA;
+                taggedUnit.charW.Content = "" + testMech.SA;
+                taggedUnit.charI.Content = "" + testMech.RA;
+                taggedUnit.charA.Content = "" + testMech.I;
+                taggedUnit.charLd.Content = "" + testMech.A;
+                taggedUnit.charSv.Content = "" + testMech.HP;
+            }
+            else
+            {
+                taggedUnit.charWS.Content = "" + units[taggedUnit.VisualizedTag.Value].WS;
+                taggedUnit.charBS.Content = "" + units[taggedUnit.VisualizedTag.Value].BS;
+                taggedUnit.charS.Content = "" + units[taggedUnit.VisualizedTag.Value].S;
+                taggedUnit.charT.Content = "" + units[taggedUnit.VisualizedTag.Value].T;
+                taggedUnit.charW.Content = "" + units[taggedUnit.VisualizedTag.Value].W;
+                taggedUnit.charI.Content = "" + units[taggedUnit.VisualizedTag.Value].I;
+                taggedUnit.charA.Content = "" + units[taggedUnit.VisualizedTag.Value].A;
+                taggedUnit.charLd.Content = "" + units[taggedUnit.VisualizedTag.Value].Ld;
+                taggedUnit.charSv.Content = "" + units[taggedUnit.VisualizedTag.Value].Sv + "+";
+            }
         }
         /// <summary>
         /// Occurs when the window is about to close. 
@@ -807,6 +829,11 @@ namespace PixelSense40k
         /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
+            if (parent.CloseCall == 0)
+            {
+                parent.CloseCall = 2;
+                parent.Close();
+            }
             base.OnClosed(e);
 
             // Remove handlers for window availability events

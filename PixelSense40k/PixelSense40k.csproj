@@ -86,9 +86,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bike.cs" />
+    <Compile Include="Mech.cs" />
     <Compile Include="Infantry.cs" />
     <Compile Include="MovementDemo.xaml.cs">
       <DependentUpon>MovementDemo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PlacementCircle.xaml.cs">
+      <DependentUpon>PlacementCircle.xaml</DependentUpon>
     </Compile>
     <Compile Include="SurfaceWindow1.xaml.cs">
       <DependentUpon>SurfaceWindow1.xaml</DependentUpon>
@@ -98,6 +102,10 @@
       <DependentUpon>UnitVisualization.xaml</DependentUpon>
     </Compile>
     <Page Include="MovementDemo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PlacementCircle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

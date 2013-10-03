@@ -29,6 +29,8 @@ namespace PixelSense40k
         /// 
         private UnitVisualizer unVis;
         private MovementDemo movDem;
+        private int closeCall;
+
         public SurfaceWindow1()
         {
             InitializeComponent();
@@ -39,6 +41,7 @@ namespace PixelSense40k
             movDem = new MovementDemo();
             unVis.SetParent(this);
             movDem.SetParent(this);
+            closeCall = 0;
         }
 
         private void LoadUV(object sender, RoutedEventArgs e)
@@ -52,16 +55,33 @@ namespace PixelSense40k
             movDem.Show();
             this.Hide();
         }
+
+        public int CloseCall
+        {
+            get { return closeCall; }
+            set { closeCall = value; }
+        }
         /// <summary>
         /// Occurs when the window is about to close. 
         /// </summary>
         /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
-            unVis.Close();
-            movDem.Close();
+            if (closeCall == 0)
+            {
+                closeCall = 1;
+                unVis.Close();
+                movDem.Close();
+            }
+            else if (closeCall == 2)
+            {
+                movDem.Close();
+            }
+            else if (closeCall == 3)
+            {
+                unVis.Close();
+            }
             base.OnClosed(e);
-
             // Remove handlers for window availability events
             RemoveWindowAvailabilityHandlers();
         }
