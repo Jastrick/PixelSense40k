@@ -20,9 +20,24 @@ namespace PixelSense40k
     /// <summary>
     /// Interaction logic for PlacementCircle.xaml
     /// </summary>
+
     public partial class PlacementCircle : TagVisualization
     {
+        private MovementDemo window;
+
+        public MovementDemo Window
+        {
+            get { return window; }
+            set { window = value; }
+        }
+
         private int tagVal;
+
+        public int TagVal
+        {
+            get { return tagVal; }
+            set { tagVal = value; }
+        }
         public PlacementCircle()
         {
             InitializeComponent();
@@ -30,7 +45,31 @@ namespace PixelSense40k
 
         private void lockUnlock(object sender, RoutedEventArgs e)
         {
-
+            Unit checkunit = window.getUnit(tagVal);
+            Point here = this.Center;
+            if (checkunit.IsInitialPlacement)
+            {
+                PlacedCircle newCircle = new PlacedCircle();
+                newCircle.TagVal = tagVal;
+                window.addNewCircle(newCircle, here);
+                window.removeTagDefinition(tagVal);
+                checkunit.IsInitialPlacement = false;
+            }
+            else
+            {
+                if (window.isWithinRange(tagVal, here))
+                {
+                    PlacedCircle newCircle = new PlacedCircle();
+                    newCircle.TagVal = tagVal;
+                    window.addNewCircle(newCircle, here);
+                    window.removeTagDefinition(tagVal);
+                    window.removeRange(tagVal);
+                }
+                else
+                {
+                    window.FlashWarning(tagVal);
+                }
+            }
         }
 
         private void PlacementCircle_Loaded(object sender, RoutedEventArgs e)

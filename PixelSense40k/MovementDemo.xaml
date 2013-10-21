@@ -3,18 +3,30 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:s="http://schemas.microsoft.com/surface/2008"
     Title="PixelSense40k"
+    Name="Sandwich"
     >
-  <Grid>
+    <Grid>
+        <Canvas Name="movementRangeCanvas" />
         <s:TagVisualizer 
             Name="MyTagVisualizer" 
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch"
-            Background="Black" 
+            Background="Transparent" 
             Height="Auto" Width="Auto"
             VisualizationAdded="OnVisualizationAdded"
             >
         </s:TagVisualizer>
-        <s:SurfaceButton Content="Back" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BackClick"/>
-        <Label Content="Movement Demo" HorizontalAlignment="Center" VerticalAlignment="Top" />
+        <Canvas Name="lockedUnitCanvas" />
+        <Canvas Name="warningLayerCanvas">
+            <Grid>
+                <Rectangle Name="redBox" Fill="Red" Opacity="0" Width="0" Height="0" />
+                <Label Name="incorrect" Content="" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"  />
+            </Grid>
+        </Canvas>
+        <Canvas Name="mainUserWindow">
+            <s:SurfaceButton Content="Back" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BackClick"/>
+            <Label Name="movDemText" Content="Movement Demo" HorizontalAlignment="Center" VerticalAlignment="Top" />
+        </Canvas>
+        
     </Grid>
 </s:SurfaceWindow>

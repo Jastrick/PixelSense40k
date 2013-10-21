@@ -9,10 +9,25 @@ public class Unit
     private String photo;
     private int faction;
     private int ws, bs, s, t, w, i, a, ld, sv, svType;
+    private bool isInitialPlacement;
+    private int squadNo;
 
     public Unit()
 	{
+        isInitialPlacement = true;
 	}
+
+    public int SquadNo
+    {
+        get { return squadNo; }
+        set { squadNo = value; }
+    }
+
+    public bool IsInitialPlacement
+    {
+        get { return isInitialPlacement; }
+        set { isInitialPlacement = value; }
+    }
 
     public String Photo
     {

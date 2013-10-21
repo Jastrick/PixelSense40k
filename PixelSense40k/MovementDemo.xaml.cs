@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -23,35 +24,229 @@ namespace PixelSense40k
     /// </summary>
     public partial class MovementDemo : SurfaceWindow
     {
-        private SurfaceWindow1 parent;
+        
+        private SurfaceWindow1 parent; 
+        private int[] circleChildPosition;
+        private PlacedCircle[] circles;
+        private int[] rangeChildPosition;
+        private RangeCircle[] ranges;
+        private int[] tagDefinitionPosition;
         public Unit[] units;
+        private int endDefPos;
+        private int endCanvasPos;
+        private int endRangePos;
+
         /// <summary>
         /// Default constructor.
         /// </summary>
         public MovementDemo()
         {
+            circleChildPosition = new int[0x31];
+            circles = new PlacedCircle[0x31];
+            rangeChildPosition = new int[0x31];
+            ranges = new RangeCircle[0x31];
+            tagDefinitionPosition = new int[0x31];
             InitializeComponent();
             InitializeDefinitions();
             CreateUnits();
             // Add handlers for window availability events
             AddWindowAvailabilityHandlers();
+            mainUserWindow.Width = Sandwich.Width;
+            mainUserWindow.Height = Sandwich.Height;
+            movementRangeCanvas.Width = Sandwich.Width;
+            movementRangeCanvas.Height = Sandwich.Height;
+            lockedUnitCanvas.Width = Sandwich.Width;
+            lockedUnitCanvas.Height = Sandwich.Height;
+            warningLayerCanvas.Width = Sandwich.Width;
+            warningLayerCanvas.Height = Sandwich.Height;
+            double left = (mainUserWindow.Width - (movDemText.ActualWidth + 150)) / 2;
+            Canvas.SetLeft(movDemText, left);
+            MyTagVisualizer.Width = mainUserWindow.Width;
+            MyTagVisualizer.Height = mainUserWindow.Height;
+            endDefPos = 0;
+            endCanvasPos = lockedUnitCanvas.Children.Count;
+            endRangePos = movementRangeCanvas.Children.Count;
+        }
+
+        /// <summary>
+        /// Returns the unit with the specified value
+        /// </summary>
+        /// <param name="tagVal">TagValue of unit to be returned</param>
+        /// <returns>Specified Unit</returns>
+        public Unit getUnit(int tagVal)
+        {
+            return units[tagVal];
+        }
+
+        /// <summary>
+        /// Checks to see if the specified Tag's location is within range of it's movement circle
+        /// </summary>
+        /// <param name="tagVal">Value of Tag</param>
+        /// <param name="tagPos">Centerpoint of Tag Visualization</param>
+        /// <returns></returns>
+        public bool isWithinRange(int tagVal, Point tagPos)
+        {
+            Point rangePoint = new Point(ranges[tagVal].CenterX, ranges[tagVal].CenterY);
+            if (pointDistance(tagPos, rangePoint) <= 300)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         
+        /// <summary>
+        /// Flashes a Warning when a unit is trying to be placed outside of it's movement range
+        /// </summary>
+        /// <param name="tagVal">Tag Value of Unit outside range</param>
+        public void FlashWarning(int tagVal)
+        {
+            redBox.Width = warningLayerCanvas.Width;
+            redBox.Height = warningLayerCanvas.Height;
+            incorrect.Content = "Invalid Move for " + units[tagVal].Name;
+
+            DoubleAnimation warnFlash = new DoubleAnimation();
+            warnFlash.From = 0.0;
+            warnFlash.To = 0.75;
+            warnFlash.Duration = new Duration(TimeSpan.FromSeconds(3));
+            warnFlash.AutoReverse = true;
+            warnFlash.Completed += shrinkRedBox;
+            DoubleAnimation textFlash = new DoubleAnimation();
+            textFlash.From = 0.0;
+            textFlash.To = 0.75;
+            textFlash.Duration = new Duration(TimeSpan.FromSeconds(3));
+            textFlash.AutoReverse = true;
+
+            Storyboard warnStoryboard = new Storyboard();
+            warnStoryboard.Children.Add(warnFlash);
+            Storyboard.SetTargetName(warnFlash, redBox.Name);
+            Storyboard.SetTargetProperty(warnFlash, new PropertyPath(Rectangle.OpacityProperty));
+            warnStoryboard.Children.Add(textFlash);
+            Storyboard.SetTargetName(textFlash, incorrect.Name);
+            Storyboard.SetTargetProperty(textFlash, new PropertyPath(Label.OpacityProperty));
+
+            warnStoryboard.Begin(this);
+            
+        }
+
+        /// <summary>
+        /// Shrinks redBox down to 0x0 so that visualizer buttons can once again be used.
+        /// </summary>
+        public void shrinkRedBox(object sender, EventArgs e)
+        {
+            redBox.Width = 0;
+            redBox.Height = 0;
+        }
+
+        /// <summary>
+        /// Links this window to the main menu window
+        /// </summary>
+        /// <param name="w">Main Menu window</param>
         public void SetParent(SurfaceWindow1 w)
         {
             parent = w;
         }
 
+        /// <summary>
+        /// Instructions for when the back button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BackClick(object sender, RoutedEventArgs e)
         {
             parent.Show();
             this.Hide();
         }
 
+        /// <summary>
+        /// How the visualizer is supposed to respond upon recognizing a tag object
+        /// </summary>
+        /// <param name="sender">Object sending the event</param>
+        /// <param name="e">Arguments for the event</param>
         private void OnVisualizationAdded(object sender, TagVisualizerEventArgs e)
         {
+            PlacementCircle taggedUnit = (PlacementCircle)e.TagVisualization;
+            taggedUnit.Window = this;
+            taggedUnit.TagVal = (int)taggedUnit.VisualizedTag.Value;
         }
 
+        /// <summary>
+        /// Adds a new PlacedCircle to the LockedCircleCanvas
+        /// </summary>
+        /// <param name="p">PlacedCircle to be added</param>
+        /// <param name="c">Center point where it is to be located</param>
+        public void addNewCircle(PlacedCircle p, Point c)
+        {
+            lockedUnitCanvas.Children.Add(p);
+            p.CenterX = c.X;
+            p.CenterY = c.Y;
+            p.Window = this;
+            Canvas.SetLeft(p, p.CenterX - 75);
+            Canvas.SetTop(p, p.CenterY - 75);
+            circleChildPosition[p.TagVal] = endCanvasPos;
+            endCanvasPos++;
+        }
+
+        /// <summary>
+        /// Adds the specified RangeCircle to the Range Circle Canvas
+        /// </summary>
+        /// <param name="r">Range Circle to be added</param>
+        public void addNewRange(RangeCircle r)
+        {
+            movementRangeCanvas.Children.Add(r);
+            r.Window = this;
+            Canvas.SetLeft(r, r.CenterX - 300);
+            Canvas.SetTop(r, r.CenterY - 300);
+            rangeChildPosition[r.TagVal] = endRangePos;
+            RangeCircle duplicate = new RangeCircle();
+            duplicate.CenterX = r.CenterX;
+            duplicate.CenterY = r.CenterY;
+            duplicate.Window = this;
+            duplicate.TagVal = r.TagVal;
+            ranges[r.TagVal] = duplicate;
+            endRangePos++;
+        }
+
+        /// <summary>
+        /// Calculates the distance between two points
+        /// </summary>
+        /// <param name="p1">Point number one</param>
+        /// <param name="p2">Point number two</param>
+        /// <returns>The distance between points one and two</returns>
+        private double pointDistance(Point p1, Point p2)
+        {
+            double solution = ((p1.X - p2.X) * (p1.X - p2.X)) + ((p1.Y - p2.Y) * (p1.Y - p2.Y));
+            solution = Math.Sqrt(solution);
+            return solution;
+        }
+
+        /// <summary>
+        /// Removes the locked-unit circle for the specified tag value from the locked unit canvas
+        /// </summary>
+        /// <param name="tagVal">Tag Value (in Hex)</param>
+        public void removeCircle(int tagVal)
+        {
+            lockedUnitCanvas.Children.RemoveAt(circleChildPosition[tagVal]);
+            circleChildPosition[tagVal] = 1337;
+            endCanvasPos--;
+        }
+
+        /// <summary>
+        /// Removes the range calculator for the specified Tag Value from the Range Canvas
+        /// </summary>
+        /// <param name="tagVal">Tag Value (in Hex)</param>
+        public void removeRange(int tagVal)
+        {
+            movementRangeCanvas.Children.RemoveAt(rangeChildPosition[tagVal]);
+            rangeChildPosition[tagVal] = 1337;
+            endRangePos--;
+        }
+
+        /// <summary>
+        /// Temporary function to create the units recognized by the visualizer. Will be greatly shortened and read in data from a text file
+        /// </summary>
         public void CreateUnits()
         {
             units = new Unit[0X31];
@@ -68,6 +263,7 @@ namespace PixelSense40k
             Seraphicus.Sv = 4;
             Seraphicus.SvType = 2;
             Seraphicus.Faction = 1;
+            Seraphicus.SquadNo = 1337;
             units[0x00] = Seraphicus;
             Infantry Balthasar = new Infantry("Company Master Balthasar", 1);
             Balthasar.Photo = "Resources/balthasar.jpg";
@@ -82,6 +278,7 @@ namespace PixelSense40k
             Balthasar.Sv = 4;
             Balthasar.SvType = 2;
             Balthasar.Faction = 1;
+            Balthasar.SquadNo = 1337;
             units[0x01] = Balthasar;
             Infantry Turmiel = new Infantry("Librarian Turmiel", 2);
             Turmiel.Photo = "Resources/turmiel.jpg";
@@ -96,6 +293,7 @@ namespace PixelSense40k
             Turmiel.Sv = 3;
             Turmiel.SvType = 1;
             Turmiel.Faction = 1;
+            Turmiel.SquadNo = 1337;
             units[0x02] = Turmiel;
             Infantry Raphael = new Infantry("Veteran Sergeant Raphael", 3);
             Raphael.Photo = "Resources/raphael.jpg";
@@ -110,6 +308,7 @@ namespace PixelSense40k
             Raphael.Sv = 3;
             Raphael.SvType = 1;
             Raphael.Faction = 1;
+            Raphael.SquadNo = 0;
             units[0x03] = Raphael;
             Infantry Marinepc = new Infantry("Space Marine with Plasma Cannon", 4);
             Marinepc.Photo = "Resources/marinepc.jpg";
@@ -124,6 +323,7 @@ namespace PixelSense40k
             Marinepc.Sv = 3;
             Marinepc.SvType = 1;
             Marinepc.Faction = 1;
+            Marinepc.SquadNo = 0;
             units[0x04] = Marinepc;
             Infantry Marinepg = new Infantry("Space Marine with Plasma Gun", 5);
             Marinepg.Photo = "Resources/marinepg.jpg";
@@ -138,6 +338,7 @@ namespace PixelSense40k
             Marinepg.Sv = 3;
             Marinepg.SvType = 1;
             Marinepg.Faction = 1;
+            Marinepg.SquadNo = 0;
             units[0x05] = Marinepg;
             Infantry Marine1 = new Infantry("Space Marine 1", 6);
             Marine1.Photo = "Resources/marine15.jpg";
@@ -152,6 +353,7 @@ namespace PixelSense40k
             Marine1.Sv = 3;
             Marine1.SvType = 1;
             Marine1.Faction = 1;
+            Marine1.SquadNo = 0;
             units[0x06] = Marine1;
             Infantry Marine2 = new Infantry("Space Marine 2", 7);
             Marine2.Photo = "Resources/marine246.jpg";
@@ -166,6 +368,7 @@ namespace PixelSense40k
             Marine2.Sv = 3;
             Marine2.SvType = 1;
             Marine2.Faction = 1;
+            Marine2.SquadNo = 0;
             units[0x07] = Marine2;
             Infantry Marine3 = new Infantry("Space Marine 3", 8);
             Marine3.Photo = "Resources/marine37.jpg";
@@ -180,6 +383,7 @@ namespace PixelSense40k
             Marine3.Sv = 3;
             Marine3.SvType = 1;
             Marine3.Faction = 1;
+            Marine3.SquadNo = 0;
             units[0x08] = Marine3;
             Infantry Marine4 = new Infantry("Space Marine 4", 9);
             Marine4.Photo = "Resources/marine246.jpg";
@@ -194,6 +398,7 @@ namespace PixelSense40k
             Marine4.Sv = 3;
             Marine4.SvType = 1;
             Marine4.Faction = 1;
+            Marine4.SquadNo = 0;
             units[0x09] = Marine4;
             Infantry Marine5 = new Infantry("Space Marine 5", 0x0A);
             Marine5.Photo = "Resources/marine15.jpg";
@@ -208,6 +413,7 @@ namespace PixelSense40k
             Marine5.Sv = 3;
             Marine5.SvType = 1;
             Marine5.Faction = 1;
+            Marine5.SquadNo = 0;
             units[0x0A] = Marine5;
             Infantry Marine6 = new Infantry("Space Marine 6", 0x0B);
             Marine6.Photo = "Resources/marine246.jpg";
@@ -222,6 +428,7 @@ namespace PixelSense40k
             Marine6.Sv = 3;
             Marine6.SvType = 1;
             Marine6.Faction = 1;
+            Marine6.SquadNo = 0;
             units[0x0B] = Marine6;
             Infantry Marine7 = new Infantry("Space Marine 7", 0x0C);
             Marine7.Photo = "Resources/marine37.jpg";
@@ -236,6 +443,7 @@ namespace PixelSense40k
             Marine7.Sv = 3;
             Marine7.SvType = 1;
             Marine7.Faction = 1;
+            Marine7.SquadNo = 0;
             units[0x0C] = Marine7;
             Infantry Barachiel = new Infantry("Sergeant Barachiel", 0x0D);
             Barachiel.Photo = "Resources/barachiel.jpg";
@@ -250,6 +458,7 @@ namespace PixelSense40k
             Barachiel.Sv = 2;
             Barachiel.SvType = 1;
             Barachiel.Faction = 1;
+            Barachiel.SquadNo = 1;
             units[0x0D] = Barachiel;
             Infantry Termac = new Infantry("Terminator with Assault Cannon", 0x0E);
             Termac.Photo = "Resources/termac.jpg";
@@ -264,6 +473,7 @@ namespace PixelSense40k
             Termac.Sv = 2;
             Termac.SvType = 1;
             Termac.Faction = 1;
+            Termac.SquadNo = 1;
             units[0x0E] = Termac;
             Infantry Termcf = new Infantry("Terminator with Chainfist", 0x0F);
             Termcf.Photo = "Resources/termcf.jpg";
@@ -278,6 +488,7 @@ namespace PixelSense40k
             Termcf.Sv = 2;
             Termcf.SvType = 1;
             Termcf.Faction = 1;
+            Termcf.SquadNo = 1;
             units[0x0F] = Termcf;
             Infantry Term1 = new Infantry("Terminator 1", 0x10);
             Term1.Photo = "Resources/term.jpg";
@@ -292,6 +503,7 @@ namespace PixelSense40k
             Term1.Sv = 2;
             Term1.SvType = 1;
             Term1.Faction = 1;
+            Term1.SquadNo = 1;
             units[0x10] = Term1;
             Infantry Term2 = new Infantry("Terminator 2", 0x11);
             Term2.Photo = "Resources/term.jpg";
@@ -306,6 +518,7 @@ namespace PixelSense40k
             Term2.Sv = 2;
             Term2.SvType = 1;
             Term2.Faction = 1;
+            Term2.SquadNo = 1;
             units[0x11] = Term2;
             Bike Arion = new Bike("Sergeant Arion", 0x12);
             Arion.Photo = "Resources/arion.jpg";
@@ -320,6 +533,7 @@ namespace PixelSense40k
             Arion.Sv = 3;
             Arion.SvType = 1;
             Arion.Faction = 1;
+            Arion.SquadNo = 2;
             units[0x12] = Arion;
             Bike Ravenwingpg = new Bike("Ravenwing Biker with Plasma Gun", 0x13);
             Ravenwingpg.Photo = "Resources/ravenwingpg.jpg";
@@ -334,6 +548,7 @@ namespace PixelSense40k
             Ravenwingpg.Sv = 3;
             Ravenwingpg.SvType = 1;
             Ravenwingpg.Faction = 1;
+            Ravenwingpg.SquadNo = 2;
             units[0x13] = Ravenwingpg;
             Bike Ravenwingbp = new Bike("Ravenwing Biker with Bolt Pistol", 0x14);
             Ravenwingbp.Photo = "Resources/ravenwingbp.jpg";
@@ -348,6 +563,7 @@ namespace PixelSense40k
             Ravenwingbp.Sv = 3;
             Ravenwingbp.SvType = 1;
             Ravenwingbp.Faction = 1;
+            Ravenwingbp.SquadNo = 2;
             units[0x14] = Ravenwingbp;
             Infantry Kranon = new Infantry("Kranon the Relentless", 0x15);
             Kranon.Photo = "Resources/kranon.jpg";
@@ -362,6 +578,7 @@ namespace PixelSense40k
             Kranon.Sv = 5;
             Kranon.SvType = 2;
             Kranon.Faction = 2;
+            Kranon.SquadNo = 1337;
             units[0x15] = Kranon;
             Mech Mortis = new Mech("Mortis Metalikus", 0x16);
             Mortis.Photo = "Resources/mortismetalkus.jpg";
@@ -375,6 +592,7 @@ namespace PixelSense40k
             Mortis.A = 2;
             Mortis.HP = 3;
             Mortis.Faction = 2;
+            Mortis.SquadNo = 1337;
             units[0x16] = Mortis;
             Infantry Draznicht = new Infantry("Draznicht, Chosen Champion", 0x17);
             Draznicht.Photo = "Resources/draznicht.jpg";
@@ -389,6 +607,7 @@ namespace PixelSense40k
             Draznicht.Sv = 3;
             Draznicht.SvType = 1;
             Draznicht.Faction = 2;
+            Draznicht.SquadNo = 3;
             units[0x17] = Draznicht;
             Infantry Chosenlc = new Infantry("Chosen with Lightning Claws", 0x18);
             Chosenlc.Photo = "Resources/chosenlc.jpg";
@@ -403,6 +622,7 @@ namespace PixelSense40k
             Chosenlc.Sv = 3;
             Chosenlc.SvType = 1;
             Chosenlc.Faction = 2;
+            Chosenlc.SquadNo = 3;
             units[0x18] = Chosenlc;
             Infantry Chosenpa = new Infantry("Chosen with Power Axe", 0x19);
             Chosenpa.Photo = "Resources/chosenpa.jpg";
@@ -417,6 +637,7 @@ namespace PixelSense40k
             Chosenpa.Sv = 3;
             Chosenpa.SvType = 1;
             Chosenpa.Faction = 2;
+            Chosenpa.SquadNo = 3;
             units[0x19] = Chosenpa;
             Infantry Chosenpf = new Infantry("Chosen with Power Fist", 0x1A);
             Chosenpf.Photo = "Resources/chosenpf.jpg";
@@ -431,6 +652,7 @@ namespace PixelSense40k
             Chosenpf.Sv = 3;
             Chosenpf.SvType = 1;
             Chosenpf.Faction = 2;
+            Chosenpf.SquadNo = 3;
             units[0x1A] = Chosenpf;
             Infantry Chosen1 = new Infantry("Chosen 1", 0x1B);
             Chosen1.Photo = "Resources/chosen.jpg";
@@ -445,6 +667,7 @@ namespace PixelSense40k
             Chosen1.Sv = 3;
             Chosen1.SvType = 1;
             Chosen1.Faction = 2;
+            Chosen1.SquadNo = 3;
             units[0x1B] = Chosen1;
             Infantry Chosen2 = new Infantry("Chosen 2", 0x1C);
             Chosen2.Photo = "Resources/chosen.jpg";
@@ -459,6 +682,7 @@ namespace PixelSense40k
             Chosen2.Sv = 3;
             Chosen2.SvType = 1;
             Chosen2.Faction = 2;
+            Chosen2.SquadNo = 3;
             units[0x1C] = Chosen2;
             Infantry Anarkus = new Infantry("Anarkus, Sect Leader", 0x1D);
             Anarkus.Photo = "Resources/anarkus.jpg";
@@ -473,6 +697,7 @@ namespace PixelSense40k
             Anarkus.Sv = 6;
             Anarkus.SvType = 1;
             Anarkus.Faction = 2;
+            Anarkus.SquadNo = 4;
             units[0x1D] = Anarkus;
             Infantry Anarkusfla = new Infantry("Sect Anarkus Cultist with Flamer", 0x1E);
             Anarkusfla.Photo = "Resources/anarkusfla.jpg";
@@ -487,6 +712,7 @@ namespace PixelSense40k
             Anarkusfla.Sv = 6;
             Anarkusfla.SvType = 1;
             Anarkusfla.Faction = 2;
+            Anarkusfla.SquadNo = 4;
             units[0x1E] = Anarkusfla;
             Infantry Anarkus1 = new Infantry("Sect Anarkus Cultist 1", 0x1F);
             Anarkus1.Photo = "Resources/anarkus15.jpg";
@@ -501,6 +727,7 @@ namespace PixelSense40k
             Anarkus1.Sv = 6;
             Anarkus1.SvType = 1;
             Anarkus1.Faction = 2;
+            Anarkus1.SquadNo = 4;
             units[0x1F] = Anarkus1;
             Infantry Anarkus2 = new Infantry("Sect Anarkus Cultist 2", 0x20);
             Anarkus2.Photo = "Resources/anarkus26.jpg";
@@ -515,6 +742,7 @@ namespace PixelSense40k
             Anarkus2.Sv = 6;
             Anarkus2.SvType = 1;
             Anarkus2.Faction = 2;
+            Anarkus2.SquadNo = 4;
             units[0x20] = Anarkus2;
             Infantry Anarkus3 = new Infantry("Sect Anarkus Cultist 3", 0x21);
             Anarkus3.Photo = "Resources/anarkus34.jpg";
@@ -529,6 +757,7 @@ namespace PixelSense40k
             Anarkus3.Sv = 6;
             Anarkus3.SvType = 1;
             Anarkus3.Faction = 2;
+            Anarkus3.SquadNo = 4;
             units[0x21] = Anarkus3;
             Infantry Anarkus4 = new Infantry("Sect Anarkus Cultist 4", 0x22);
             Anarkus4.Photo = "Resources/anarkus34.jpg";
@@ -543,6 +772,7 @@ namespace PixelSense40k
             Anarkus4.Sv = 6;
             Anarkus4.SvType = 1;
             Anarkus4.Faction = 2;
+            Anarkus4.SquadNo = 4;
             units[0x22] = Anarkus4;
             Infantry Anarkus5 = new Infantry("Sect Anarkus Cultist 5", 0x23);
             Anarkus5.Photo = "Resources/anarkus15.jpg";
@@ -557,6 +787,7 @@ namespace PixelSense40k
             Anarkus5.Sv = 6;
             Anarkus5.SvType = 1;
             Anarkus5.Faction = 2;
+            Anarkus5.SquadNo = 4;
             units[0x23] = Anarkus5;
             Infantry Anarkus6 = new Infantry("Sect Anarkus Cultist 6", 0x24);
             Anarkus6.Photo = "Resources/anarkus26.jpg";
@@ -571,6 +802,7 @@ namespace PixelSense40k
             Anarkus6.Sv = 6;
             Anarkus6.SvType = 1;
             Anarkus6.Faction = 2;
+            Anarkus6.SquadNo = 4;
             units[0x24] = Anarkus6;
             Infantry Anarkus7 = new Infantry("Sect Anarkus Cultist 7", 0x25);
             Anarkus7.Photo = "Resources/anarkus78.jpg";
@@ -585,6 +817,7 @@ namespace PixelSense40k
             Anarkus7.Sv = 6;
             Anarkus7.SvType = 1;
             Anarkus7.Faction = 2;
+            Anarkus7.SquadNo = 4;
             units[0x25] = Anarkus7;
             Infantry Anarkus8 = new Infantry("Sect Anarkus Cultist 8", 0x26);
             Anarkus8.Photo = "Resources/anarkus78.jpg";
@@ -599,6 +832,7 @@ namespace PixelSense40k
             Anarkus8.Sv = 6;
             Anarkus8.SvType = 1;
             Anarkus8.Faction = 2;
+            Anarkus8.SquadNo = 4;
             units[0x26] = Anarkus8;
             Infantry Tetchvar1 = new Infantry("Sect Tetchvar Cultist 1", 0x27);
             Tetchvar1.Photo = "Resources/tetchvar14.jpg";
@@ -613,6 +847,7 @@ namespace PixelSense40k
             Tetchvar1.Sv = 6;
             Tetchvar1.SvType = 1;
             Tetchvar1.Faction = 2;
+            Tetchvar1.SquadNo = 5;
             units[0x27] = Tetchvar1;
             Infantry Tetchvar = new Infantry("Tetchvar, Sect Leader", 0x28);
             Tetchvar.Photo = "Resources/tetchvar.jpg";
@@ -627,6 +862,7 @@ namespace PixelSense40k
             Tetchvar.Sv = 6;
             Tetchvar.SvType = 1;
             Tetchvar.Faction = 2;
+            Tetchvar.SquadNo = 5;
             units[0x28] = Tetchvar;
             Infantry Tetchvarhs = new Infantry("Sect Tetchvar Cultist with Heavy Stubber", 0x29);
             Tetchvarhs.Photo = "Resources/tetchvarhs.jpg";
@@ -641,6 +877,7 @@ namespace PixelSense40k
             Tetchvarhs.Sv = 6;
             Tetchvarhs.SvType = 1;
             Tetchvarhs.Faction = 2;
+            Tetchvarhs.SquadNo = 5;
             units[0x29] = Tetchvarhs;
             Infantry Tetchvar2 = new Infantry("Sect Tetchvar Cultist 2", 0x2A);
             Tetchvar2.Photo = "Resources/tetchvar26.jpg";
@@ -655,6 +892,7 @@ namespace PixelSense40k
             Tetchvar2.Sv = 6;
             Tetchvar2.SvType = 1;
             Tetchvar2.Faction = 2;
+            Tetchvar2.SquadNo = 5;
             units[0x2A] = Tetchvar2;
             Infantry Tetchvar3 = new Infantry("Sect Tetchvar Cultist 3", 0x2B);
             Tetchvar3.Photo = "Resources/tetchvar35.jpg";
@@ -669,6 +907,7 @@ namespace PixelSense40k
             Tetchvar3.Sv = 6;
             Tetchvar3.SvType = 1;
             Tetchvar3.Faction = 2;
+            Tetchvar3.SquadNo = 5;
             units[0x2B] = Tetchvar3;
             Infantry Tetchvar4 = new Infantry("Sect Tetchvar Cultist 4", 0x2C);
             Tetchvar4.Photo = "Resources/tetchvar14.jpg";
@@ -683,6 +922,7 @@ namespace PixelSense40k
             Tetchvar4.Sv = 6;
             Tetchvar4.SvType = 1;
             Tetchvar4.Faction = 2;
+            Tetchvar4.SquadNo = 5;
             units[0x2C] = Tetchvar4;
             Infantry Tetchvar5 = new Infantry("Sect Tetchvar Cultist 5", 0x2D);
             Tetchvar5.Photo = "Resources/tetchvar35.jpg";
@@ -697,6 +937,7 @@ namespace PixelSense40k
             Tetchvar5.Sv = 6;
             Tetchvar5.SvType = 1;
             Tetchvar5.Faction = 2;
+            Tetchvar5.SquadNo = 5;
             units[0x2D] = Tetchvar5;
             Infantry Tetchvar6 = new Infantry("Sect Tetchvar Cultist 6", 0x2E);
             Tetchvar6.Photo = "Resources/tetchvar26.jpg";
@@ -711,6 +952,7 @@ namespace PixelSense40k
             Tetchvar6.Sv = 6;
             Tetchvar6.SvType = 1;
             Tetchvar6.Faction = 2;
+            Tetchvar6.SquadNo = 5;
             units[0x2E] = Tetchvar6;
             Infantry Tetchvar7 = new Infantry("Sect Tetchvar Cultist 7", 0x2F);
             Tetchvar7.Photo = "Resources/tetchvar78.jpg";
@@ -725,6 +967,7 @@ namespace PixelSense40k
             Tetchvar7.Sv = 6;
             Tetchvar7.SvType = 1;
             Tetchvar7.Faction = 2;
+            Tetchvar7.SquadNo = 5;
             units[0x2F] = Tetchvar7;
             Infantry Tetchvar8 = new Infantry("Sect Tetchvar Cultist 8", 0x30);
             Tetchvar8.Photo = "Resources/tetchvar78.jpg";
@@ -739,8 +982,10 @@ namespace PixelSense40k
             Tetchvar8.Sv = 6;
             Tetchvar8.SvType = 1;
             Tetchvar8.Faction = 2;
+            Tetchvar8.SquadNo = 5;
             units[0x30] = Tetchvar8;
         }
+
         /// <summary>
         /// Initializes the Tag definitions for the visualizer
         /// </summary>
@@ -750,6 +995,7 @@ namespace PixelSense40k
             {
                 TagVisualizationDefinition tagDef =
                         new TagVisualizationDefinition();
+                tagDefinitionPosition[tagVal] = tagVal;
                 // The tag value that this definition will respond to.
                 tagDef.Value = (byte)tagVal;
                 // The .xaml file for the UI
@@ -769,8 +1015,52 @@ namespace PixelSense40k
                 tagDef.UsesTagOrientation = true;
                 // Add the definition to the collection.
                 MyTagVisualizer.Definitions.Add(tagDef);
+                endDefPos++;
             }
         }
+
+        /// <summary>
+        /// Removes the tag definition for the specified value from the visualizer
+        /// </summary>
+        /// <param name="tagVal">Tag value to be removed (in Hex)</param>
+        public void removeTagDefinition(int tagVal)
+        {
+            MyTagVisualizer.Definitions.RemoveAt(tagDefinitionPosition[tagVal]);
+            tagDefinitionPosition[tagVal] = 1337;
+            endDefPos--;
+        }
+
+        /// <summary>
+        /// Adds a tag definition for a specified value into the Tag Visualizer
+        /// </summary>
+        /// <param name="tagVal">Tag value to be added (in Hex)</param>
+        public void addTagDefinition(int tagVal)
+        {
+            TagVisualizationDefinition tagDef =
+                        new TagVisualizationDefinition();
+            // The tag value that this definition will respond to.
+            tagDef.Value = (byte)tagVal;
+            // The .xaml file for the UI
+            tagDef.Source =
+                new Uri("PlacementCircle.xaml", UriKind.Relative);
+            // The maximum number for this tag value.
+            tagDef.MaxCount = 1;
+            // The visualization stays for 2 seconds.
+            tagDef.LostTagTimeout = 2000.0;
+            // Orientation offset (default).
+            tagDef.OrientationOffsetFromTag = 0.0;
+            // Physical offset (horizontal inches, vertical inches).
+            tagDef.PhysicalCenterOffsetFromTag = new Vector(0, 0);
+            // Tag removal behavior (default).
+            tagDef.TagRemovedBehavior = TagRemovedBehavior.Fade;
+            // Orient UI to tag? (default).
+            tagDef.UsesTagOrientation = true;
+            // Add the definition to the collection.
+            MyTagVisualizer.Definitions.Add(tagDef);
+            endDefPos++;
+            tagDefinitionPosition[tagVal] = endDefPos;
+        }
+
         /// <summary>
         /// Occurs when the window is about to close. 
         /// </summary>

@@ -91,8 +91,14 @@
     <Compile Include="MovementDemo.xaml.cs">
       <DependentUpon>MovementDemo.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PlacedCircle.xaml.cs">
+      <DependentUpon>PlacedCircle.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PlacementCircle.xaml.cs">
       <DependentUpon>PlacementCircle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RangeCircle.xaml.cs">
+      <DependentUpon>RangeCircle.xaml</DependentUpon>
     </Compile>
     <Compile Include="SurfaceWindow1.xaml.cs">
       <DependentUpon>SurfaceWindow1.xaml</DependentUpon>
@@ -105,7 +111,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="PlacedCircle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="PlacementCircle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RangeCircle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
