@@ -49,25 +49,136 @@ namespace PixelSense40k
             Point here = this.Center;
             if (checkunit.IsInitialPlacement)
             {
-                PlacedCircle newCircle = new PlacedCircle();
-                newCircle.TagVal = tagVal;
-                window.addNewCircle(newCircle, here);
-                window.removeTagDefinition(tagVal);
-                checkunit.IsInitialPlacement = false;
-            }
-            else
-            {
-                if (window.isWithinRange(tagVal, here))
+                if (window.getUnit(tagVal).SquadNo != 1337)
                 {
-                    PlacedCircle newCircle = new PlacedCircle();
-                    newCircle.TagVal = tagVal;
-                    window.addNewCircle(newCircle, here);
-                    window.removeTagDefinition(tagVal);
-                    window.removeRange(tagVal);
+                    if (window.SquadExists(window.getUnit(tagVal).SquadNo))
+                    {
+                        if (window.checkCohesion(here, checkunit, window.getUnit(tagVal).SquadNo))
+                        {
+                            PlacedCircle newCircle = new PlacedCircle();
+                            newCircle.TagVal = tagVal;
+                            window.addNewCircle(this, newCircle, here);
+                            window.removeTagDefinition(tagVal);
+                            checkunit.IsInitialPlacement = false;
+                            if (window.isFullUnitPlaced(window.getUnit(tagVal).SquadNo))
+                            {
+                                window.removeCohesionCircles(window.getUnit(tagVal).SquadNo);
+                            }
+                            else
+                            {
+                                RangeCircle r = new RangeCircle();
+                                r.CenterX = here.X;
+                                r.CenterY = here.Y;
+                                r.VisibleCircle.Fill = Brushes.Red;
+                                r.VisibleCircle.Width = 384;
+                                r.VisibleCircle.Height = 384;
+                                r.TagVal = tagVal;
+                                window.addNewCohesion(r);
+                            }
+                        }
+                        else
+                        {
+                            window.FlashWarning(tagVal);
+                        }
+                    }
+                    else
+                    {
+                        PlacedCircle newCircle = new PlacedCircle();
+                        newCircle.TagVal = tagVal;
+                        window.addNewCircle(this, newCircle, here);
+                        window.removeTagDefinition(tagVal);
+                        checkunit.IsInitialPlacement = false;
+                        RangeCircle r = new RangeCircle();
+                        r.CenterX = here.X;
+                        r.CenterY = here.Y;
+                        r.VisibleCircle.Fill = Brushes.Yellow;
+                        r.VisibleCircle.Width = 384;
+                        r.VisibleCircle.Height = 384;
+                        r.TagVal = tagVal;
+                        window.addNewCohesion(r);
+                    }
                 }
                 else
                 {
-                    window.FlashWarning(tagVal);
+                    PlacedCircle newCircle = new PlacedCircle();
+                    newCircle.TagVal = tagVal;
+                    window.addNewCircle(this, newCircle, here);
+                    window.removeTagDefinition(tagVal);
+                    checkunit.IsInitialPlacement = false;
+                }
+            }
+            else
+            {
+                if (window.getUnit(tagVal).SquadNo != 1337)
+                {
+                    if (window.getUnit(tagVal).FirstToMove)
+                    {
+                        if (window.isWithinRange(tagVal, here))
+                        {
+                            PlacedCircle newCircle = new PlacedCircle();
+                            newCircle.TagVal = tagVal;
+                            window.addNewCircle(this, newCircle, here);
+                            window.removeTagDefinition(tagVal);
+                            window.removeRange(tagVal);
+                            RangeCircle r = new RangeCircle();
+                            r.CenterX = here.X;
+                            r.CenterY = here.Y;
+                            r.VisibleCircle.Fill = Brushes.Red;
+                            r.VisibleCircle.Width = 384;
+                            r.VisibleCircle.Height = 384;
+                            r.TagVal = tagVal;
+                            window.addNewCohesion(r);
+                        }
+                        else
+                        {
+                            window.FlashWarning(tagVal);
+                        }
+                    }
+                    else
+                    {
+                        if ((window.isWithinRange(tagVal, here)) && (window.checkCohesion(here, window.getUnit(tagVal), window.getUnit(tagVal).SquadNo)))
+                        {
+                            PlacedCircle newCircle = new PlacedCircle();
+                            newCircle.TagVal = tagVal;
+                            window.addNewCircle(this, newCircle, here);
+                            window.removeTagDefinition(tagVal);
+                            window.removeRange(tagVal);
+                            if (!window.isFullUnitPlaced(window.getUnit(tagVal).SquadNo))
+                            {
+                                window.removeCohesionCircles(window.getUnit(tagVal).SquadNo);
+                            }
+                            else
+                            {
+                                RangeCircle r = new RangeCircle();
+                                r.CenterX = here.X;
+                                r.CenterY = here.Y;
+                                r.VisibleCircle.Fill = Brushes.Red;
+                                r.VisibleCircle.Width = 384;
+                                r.VisibleCircle.Height = 384;
+                                r.TagVal = tagVal;
+                                window.addNewCohesion(r);
+                            }
+                        }
+                        else
+                        {
+                            window.FlashWarning(tagVal);
+                        }
+                    }
+                }
+                else
+                {
+                    if (window.isWithinRange(tagVal, here))
+                    {
+                        PlacedCircle newCircle = new PlacedCircle();
+                        newCircle.TagVal = tagVal;
+                        window.addNewCircle(this, newCircle, here);
+                        window.removeTagDefinition(tagVal);
+                        window.removeRange(tagVal);
+                    }
+                    else
+                    {
+                        window.FlashWarning(tagVal);
+                    }
                 }
             }
         }

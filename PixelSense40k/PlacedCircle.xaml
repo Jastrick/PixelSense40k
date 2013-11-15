@@ -12,7 +12,12 @@
             <Grid>
             <Ellipse Height="150.0" Width="150.0" Fill="CadetBlue"/>
             <Label Content="Put it back" FontSize="8" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <s:SurfaceButton Content="Move" FontSize="10"  HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="lockUnlock"/>
+            </Grid>
+            <Grid Height="150">
+                <s:ElementMenu HorizontalAlignment="Left" VerticalAlignment="Bottom" ActivationMode="AlwaysActive" Orientation="90" Margin="80,0,0,-27">
+                    <s:ElementMenuItem Name="mMenuItem" Header="Move Unit" Click="lockUnlock"/>
+                    <s:ElementMenuItem Name="aMenuItem" Header="Attack" Click="initiateAttack"/>
+                </s:ElementMenu>
             </Grid>
         </Canvas>
     </Grid>

@@ -86,6 +86,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bike.cs" />
+    <Compile Include="RemoveCircle.xaml.cs">
+      <DependentUpon>RemoveCircle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Squad.cs" />
     <Compile Include="Mech.cs" />
     <Compile Include="Infantry.cs" />
     <Compile Include="MovementDemo.xaml.cs">
@@ -120,6 +124,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RangeCircle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RemoveCircle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

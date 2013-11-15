@@ -1,0 +1,10 @@
+﻿<s:TagVisualization x:Class="PixelSense40k.RemoveCircle"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:s="http://schemas.microsoft.com/surface/2008"
+    Loaded="RemoveCircle_Loaded">
+    <Grid>
+        <Ellipse Name="removeMe" Fill="Red" Width="150" Height="150"/>
+        <Label Content="UNIT DECEASED" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Grid>
+</s:TagVisualization>

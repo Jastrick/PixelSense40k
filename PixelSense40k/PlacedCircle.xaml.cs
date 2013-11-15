@@ -49,6 +49,43 @@ namespace PixelSense40k
 
         private void lockUnlock(object sender, RoutedEventArgs e)
         {
+            for (int i = 0; i < window.squadGroups[window.getUnit(tagVal).SquadNo].Units.Count; i++)
+            {
+                if (!window.squadGroups[window.getUnit(tagVal).SquadNo].Units[i].Equals(window.getUnit(tagVal))){
+                    window.circles[window.squadGroups[window.getUnit(tagVal).SquadNo].Units[i].UnitID].altRemove();
+                    i--;
+                }
+            }
+            window.getUnit(tagVal).FirstToMove = true;
+            RangeCircle r = new RangeCircle();
+            r.CenterX = centerX;
+            r.CenterY = centerY;
+            r.Width = window.getUnit(tagVal).MaxMove * 96;
+            r.Height = window.getUnit(tagVal).MaxMove * 96;
+            r.TagVal = tagVal;
+            window.addNewRange(r);
+            window.addTagDefinition(tagVal);
+            window.removeCircle(tagVal);
+        }
+
+        private void initiateAttack(object sender, RoutedEventArgs e)
+        {
+            if (window.seekAttack == true)
+            {
+                if (window.attacker.Faction != window.getUnit(tagVal).Faction)
+                {
+
+                }
+            }
+            else
+            {
+                window.seekAttack = true;
+                window.attacker = window.getUnit(tagVal);
+            }
+        }
+
+        public void altRemove()
+        {
             RangeCircle r = new RangeCircle();
             r.CenterX = centerX;
             r.CenterY = centerY;

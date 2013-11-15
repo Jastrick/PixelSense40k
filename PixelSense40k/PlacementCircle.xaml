@@ -7,6 +7,8 @@
         <Ellipse Height="150.0" Width="150.0" Fill="CadetBlue"/>
         <Rectangle Name="iBoundary" Height="75" Width="75" />
         <Label Content="Put it back" FontSize="8" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <s:SurfaceButton Content="Lock" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="lockUnlock"/>
+        <s:ElementMenu HorizontalAlignment="Left" VerticalAlignment="Bottom" ActivationMode="AlwaysActive" Orientation="90" Margin="80,0,0,-27">
+            <s:ElementMenuItem Header="Lock Position" Click="lockUnlock"/>
+        </s:ElementMenu>
     </Grid>
 </s:TagVisualization>

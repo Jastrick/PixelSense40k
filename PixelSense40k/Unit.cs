@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using Microsoft.Surface.Presentation.Input;
 
 public class Unit
@@ -10,12 +11,37 @@ public class Unit
     private int faction;
     private int ws, bs, s, t, w, i, a, ld, sv, svType;
     private bool isInitialPlacement;
+    private bool firstToMove;
+    private Point center;
     private int squadNo;
+    private bool isAlive;
+
+    public void checkHealth()
+    {
+        if (w == 0)
+        {
+            isAlive = false;
+        }
+    }
+
+    public bool IsAlive
+    {
+        get { return isAlive; }
+        set { isAlive = value; }
+    }
 
     public Unit()
 	{
         isInitialPlacement = true;
+        firstToMove = false;
+        isAlive = true;
 	}
+
+    public Point Center
+    {
+        get { return center; }
+        set { center = value; }
+    }
 
     public int SquadNo
     {
@@ -118,5 +144,10 @@ public class Unit
         get { return ws; }
         set { ws = value; }
     }
-
+    
+    public bool FirstToMove
+    {
+        get { return firstToMove; }
+        set { firstToMove = value; }
+    }
 }

@@ -7,6 +7,7 @@
     >
     <Grid>
         <Canvas Name="movementRangeCanvas" />
+        <Canvas Name="squadGroupCanvas" />
         <s:TagVisualizer 
             Name="MyTagVisualizer" 
             VerticalAlignment="Stretch"

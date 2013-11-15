@@ -7,7 +7,7 @@
              d:DesignHeight="600" d:DesignWidth="600">
     <Grid>
         <Canvas Name="HoldingPattern" Width="600" Height="600">
-            <Ellipse Width="600" Height="600" Fill="Lime" Opacity="0.1" />
+            <Ellipse Name="VisibleCircle"  Width="600" Height="600" Fill="Lime" Opacity="0.1" />
         </Canvas>
     </Grid>
 </UserControl>

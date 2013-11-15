@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -24,31 +25,33 @@ namespace PixelSense40k
     /// </summary>
     public partial class MovementDemo : SurfaceWindow
     {
-        
         private SurfaceWindow1 parent; 
-        private int[] circleChildPosition;
-        private PlacedCircle[] circles;
-        private int[] rangeChildPosition;
+        public PlacedCircle[] circles;
         private RangeCircle[] ranges;
-        private int[] tagDefinitionPosition;
+        private RangeCircle[] cohesions;
+        private TagVisualizationDefinition[] tagDefinitions;
+        public Squad[] squadGroups;
+        private Polygon[] squadGroupPolygons;
         public Unit[] units;
-        private int endDefPos;
-        private int endCanvasPos;
-        private int endRangePos;
+        public bool seekAttack;
+        public Unit attacker;
+
 
         /// <summary>
         /// Default constructor.
         /// </summary>
         public MovementDemo()
         {
-            circleChildPosition = new int[0x31];
             circles = new PlacedCircle[0x31];
-            rangeChildPosition = new int[0x31];
             ranges = new RangeCircle[0x31];
-            tagDefinitionPosition = new int[0x31];
+            cohesions = new RangeCircle[0x31];
+            tagDefinitions = new TagVisualizationDefinition[0x31];
+            squadGroupPolygons = new Polygon[6];
+            squadGroups = new Squad[6];
             InitializeComponent();
             InitializeDefinitions();
             CreateUnits();
+            CreateSquads();
             // Add handlers for window availability events
             AddWindowAvailabilityHandlers();
             mainUserWindow.Width = Sandwich.Width;
@@ -59,13 +62,12 @@ namespace PixelSense40k
             lockedUnitCanvas.Height = Sandwich.Height;
             warningLayerCanvas.Width = Sandwich.Width;
             warningLayerCanvas.Height = Sandwich.Height;
+            squadGroupCanvas.Width = Sandwich.Width;
+            squadGroupCanvas.Height = Sandwich.Height;
             double left = (mainUserWindow.Width - (movDemText.ActualWidth + 150)) / 2;
             Canvas.SetLeft(movDemText, left);
             MyTagVisualizer.Width = mainUserWindow.Width;
             MyTagVisualizer.Height = mainUserWindow.Height;
-            endDefPos = 0;
-            endCanvasPos = lockedUnitCanvas.Children.Count;
-            endRangePos = movementRangeCanvas.Children.Count;
         }
 
         /// <summary>
@@ -87,7 +89,7 @@ namespace PixelSense40k
         public bool isWithinRange(int tagVal, Point tagPos)
         {
             Point rangePoint = new Point(ranges[tagVal].CenterX, ranges[tagVal].CenterY);
-            if (pointDistance(tagPos, rangePoint) <= 300)
+            if (pointDistance(tagPos, rangePoint) <= (units[tagVal].MaxMove * 96))
             {
                 return true;
             }
@@ -177,16 +179,52 @@ namespace PixelSense40k
         /// </summary>
         /// <param name="p">PlacedCircle to be added</param>
         /// <param name="c">Center point where it is to be located</param>
-        public void addNewCircle(PlacedCircle p, Point c)
+        public void addNewCircle(PlacementCircle o, PlacedCircle p, Point c)
         {
             lockedUnitCanvas.Children.Add(p);
             p.CenterX = c.X;
             p.CenterY = c.Y;
+            units[p.TagVal].Center = new Point(c.X, c.Y);
+            if (units[p.TagVal].SquadNo != 1337)
+            {
+                squadGroups[units[p.TagVal].SquadNo].Units.Add(units[p.TagVal]);
+                UpdateSquads();
+            }
             p.Window = this;
             Canvas.SetLeft(p, p.CenterX - 75);
             Canvas.SetTop(p, p.CenterY - 75);
-            circleChildPosition[p.TagVal] = endCanvasPos;
-            endCanvasPos++;
+            circles[p.TagVal] = p;
+            MyTagVisualizer.RemoveVisualization(o);
+        }
+
+        /// <summary>
+        /// Returns an array of n rolled six-sided dice.
+        /// </summary>
+        /// <param name="n">Number of dice to roll</param>
+        /// <returns>An array of the results</returns>
+        public int[] rolld6(int n) 
+        {
+            int[] returnArray = new int[n];
+            Random d6gen = new Random();
+            for (int i = 0; i < n; i++)
+            {
+                returnArray[i] = d6gen.Next(1, 6);
+            }
+            return returnArray;
+        }
+
+        public bool checkCohesion(Point unitPos, Unit u, int squadNum)
+        {
+            for (int i = 0; i < squadGroups[squadNum].Units.Count; i++)
+            {
+                if (!u.Equals(squadGroups[squadNum].Units[i])){
+                    if (pointDistance(unitPos, squadGroups[squadNum].Units[i].Center) < 192)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -199,22 +237,66 @@ namespace PixelSense40k
             r.Window = this;
             Canvas.SetLeft(r, r.CenterX - 300);
             Canvas.SetTop(r, r.CenterY - 300);
-            rangeChildPosition[r.TagVal] = endRangePos;
-            RangeCircle duplicate = new RangeCircle();
-            duplicate.CenterX = r.CenterX;
-            duplicate.CenterY = r.CenterY;
-            duplicate.Window = this;
-            duplicate.TagVal = r.TagVal;
-            ranges[r.TagVal] = duplicate;
-            endRangePos++;
+            ranges[r.TagVal] = r;
         }
 
         /// <summary>
-        /// Calculates the distance between two points
+        /// Adds new cohesion circle to the canvas
         /// </summary>
-        /// <param name="p1">Point number one</param>
-        /// <param name="p2">Point number two</param>
-        /// <returns>The distance between points one and two</returns>
+        /// <param name="r">rangecircle to be added</param>
+        public void addNewCohesion(RangeCircle r)
+        {
+            movementRangeCanvas.Children.Add(r);
+            r.Window = this;
+            Canvas.SetLeft(r, r.CenterX - 192);
+            Canvas.SetTop(r, r.CenterY - 192);
+            cohesions[r.TagVal] = r;
+        }
+
+        public bool SquadExists(int squadNo)
+        {
+            if (squadGroups[squadNo].Units.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool isFullUnitPlaced(int squadNo)
+        {
+            int count = 0;
+            for (int i = 0x00; i < units.Length; i++)
+            {
+                if ((units[i].SquadNo == squadNo) && (units[i].IsAlive))
+                {
+                    count++;
+                }
+            }
+            if (count == squadGroups[squadNo].Units.Count)
+            {
+                return true;
+            }
+
+            else
+            {
+                return false;
+            }
+        }
+
+        public void removeCohesionCircles(int squadNo)
+        {
+            for (int i = 0x00; i < units.Length; i++)
+            {
+                if ((units[i].SquadNo == squadNo) && (units[i].IsAlive))
+                {
+                    movementRangeCanvas.Children.Remove(cohesions[units[i].UnitID]);
+                }
+            }
+        }
+
         private double pointDistance(Point p1, Point p2)
         {
             double solution = ((p1.X - p2.X) * (p1.X - p2.X)) + ((p1.Y - p2.Y) * (p1.Y - p2.Y));
@@ -228,9 +310,12 @@ namespace PixelSense40k
         /// <param name="tagVal">Tag Value (in Hex)</param>
         public void removeCircle(int tagVal)
         {
-            lockedUnitCanvas.Children.RemoveAt(circleChildPosition[tagVal]);
-            circleChildPosition[tagVal] = 1337;
-            endCanvasPos--;
+            lockedUnitCanvas.Children.Remove(circles[tagVal]);
+            if (units[tagVal].SquadNo != 1337)
+            {
+                squadGroups[units[tagVal].SquadNo].Units.Remove(units[tagVal]);
+                UpdateSquads();
+            }
         }
 
         /// <summary>
@@ -239,9 +324,7 @@ namespace PixelSense40k
         /// <param name="tagVal">Tag Value (in Hex)</param>
         public void removeRange(int tagVal)
         {
-            movementRangeCanvas.Children.RemoveAt(rangeChildPosition[tagVal]);
-            rangeChildPosition[tagVal] = 1337;
-            endRangePos--;
+            movementRangeCanvas.Children.Remove(ranges[tagVal]);
         }
 
         /// <summary>
@@ -987,6 +1070,104 @@ namespace PixelSense40k
         }
 
         /// <summary>
+        /// Initializes the Squad Polygons
+        /// </summary>
+        private void CreateSquads()
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                squadGroups[i] = new Squad(i, 10);
+            }
+        }
+
+        /// <summary>
+        /// Redraws all the Squad Polygons
+        /// </summary>
+        private void UpdateSquads()
+        {
+            if (squadGroupCanvas.Children.Count != 0)
+            {
+                squadGroupCanvas.Children.RemoveRange(0, squadGroupCanvas.Children.Count);
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                drawTriangles(i);
+            }
+        }
+       
+        /// <summary>
+        /// Draws the closest-point triangles for the squad
+        /// </summary>
+        /// <param name="squad">squad number</param>
+        private void drawTriangles(int squad)
+        {   int close1, close2;
+            if (squadGroups[squad].Units.Count >= 3)
+            {
+                for (int i = 0; i < squadGroups[squad].Units.Count; i++)
+                {
+                    close1 = 1337;
+                    close2 = 1337;
+                    Polygon newPoly = new Polygon();
+                    PointCollection centers = new PointCollection();
+                    if (squad < 3)
+                    {
+                        newPoly.Fill = Brushes.ForestGreen;
+                    }
+                    else
+                    {
+                        newPoly.Fill = Brushes.Firebrick;
+                    }
+                    centers.Add(squadGroups[squad].Units[i].Center);
+                    for (int j = 0; j < squadGroups[squad].Units.Count; j++)
+                    {
+                        if (i != j)
+                        {
+                            if (close1 == 1337)
+                            {
+                                close1 = j;
+                            }
+                            else if (close2 == 1337)
+                            {
+                                close2 = j;
+                            }
+                            else
+                            {
+                                double newDistance = pointDistance(squadGroups[squad].Units[i].Center, squadGroups[squad].Units[j].Center);
+                                double close1Distance = pointDistance(squadGroups[squad].Units[i].Center, squadGroups[squad].Units[close1].Center);
+                                double close2Distance = pointDistance(squadGroups[squad].Units[i].Center, squadGroups[squad].Units[close2].Center);
+                                if ((newDistance < close1Distance) && (newDistance < close2Distance))
+                                {
+                                    if (close1Distance > close2Distance)
+                                    {
+                                        close1 = j;
+                                    }
+                                    else
+                                    {
+                                        close2 = j;
+                                    }
+                                }
+                                else if ((newDistance < close1Distance) && (newDistance > close2Distance))
+                                {
+                                    close1 = j;
+                                }
+                                else if ((newDistance > close1Distance) && (newDistance < close2Distance))
+                                {
+                                    close2 = j;
+                                }
+
+                            }
+                        }
+                    }
+                    centers.Add(squadGroups[squad].Units[close1].Center);
+                    centers.Add(squadGroups[squad].Units[close2].Center);
+                    newPoly.Points = centers;
+                    squadGroupCanvas.Children.Add(newPoly);
+                }
+            }
+        }
+
+        /// <summary>
         /// Initializes the Tag definitions for the visualizer
         /// </summary>
         private void InitializeDefinitions()
@@ -995,7 +1176,6 @@ namespace PixelSense40k
             {
                 TagVisualizationDefinition tagDef =
                         new TagVisualizationDefinition();
-                tagDefinitionPosition[tagVal] = tagVal;
                 // The tag value that this definition will respond to.
                 tagDef.Value = (byte)tagVal;
                 // The .xaml file for the UI
@@ -1014,8 +1194,8 @@ namespace PixelSense40k
                 // Orient UI to tag? (default).
                 tagDef.UsesTagOrientation = true;
                 // Add the definition to the collection.
-                MyTagVisualizer.Definitions.Add(tagDef);
-                endDefPos++;
+                tagDefinitions[tagVal] = tagDef;
+                MyTagVisualizer.Definitions.Add(tagDef); 
             }
         }
 
@@ -1025,9 +1205,7 @@ namespace PixelSense40k
         /// <param name="tagVal">Tag value to be removed (in Hex)</param>
         public void removeTagDefinition(int tagVal)
         {
-            MyTagVisualizer.Definitions.RemoveAt(tagDefinitionPosition[tagVal]);
-            tagDefinitionPosition[tagVal] = 1337;
-            endDefPos--;
+            MyTagVisualizer.Definitions.Remove(tagDefinitions[tagVal]);
         }
 
         /// <summary>
@@ -1036,29 +1214,7 @@ namespace PixelSense40k
         /// <param name="tagVal">Tag value to be added (in Hex)</param>
         public void addTagDefinition(int tagVal)
         {
-            TagVisualizationDefinition tagDef =
-                        new TagVisualizationDefinition();
-            // The tag value that this definition will respond to.
-            tagDef.Value = (byte)tagVal;
-            // The .xaml file for the UI
-            tagDef.Source =
-                new Uri("PlacementCircle.xaml", UriKind.Relative);
-            // The maximum number for this tag value.
-            tagDef.MaxCount = 1;
-            // The visualization stays for 2 seconds.
-            tagDef.LostTagTimeout = 2000.0;
-            // Orientation offset (default).
-            tagDef.OrientationOffsetFromTag = 0.0;
-            // Physical offset (horizontal inches, vertical inches).
-            tagDef.PhysicalCenterOffsetFromTag = new Vector(0, 0);
-            // Tag removal behavior (default).
-            tagDef.TagRemovedBehavior = TagRemovedBehavior.Fade;
-            // Orient UI to tag? (default).
-            tagDef.UsesTagOrientation = true;
-            // Add the definition to the collection.
-            MyTagVisualizer.Definitions.Add(tagDef);
-            endDefPos++;
-            tagDefinitionPosition[tagVal] = endDefPos;
+            MyTagVisualizer.Definitions.Add(tagDefinitions[tagVal]);
         }
 
         /// <summary>
