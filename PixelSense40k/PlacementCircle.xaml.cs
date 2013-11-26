@@ -91,7 +91,7 @@ namespace PixelSense40k
                         RangeCircle r = new RangeCircle();
                         r.CenterX = here.X;
                         r.CenterY = here.Y;
-                        r.VisibleCircle.Fill = Brushes.Yellow;
+                        r.VisibleCircle.Fill = Brushes.Red;
                         r.VisibleCircle.Width = 384;
                         r.VisibleCircle.Height = 384;
                         r.TagVal = tagVal;

@@ -86,6 +86,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bike.cs" />
+    <Compile Include="Melee.cs" />
+    <Compile Include="Ranged.cs" />
+    <Compile Include="Weapon.cs" />
     <Compile Include="RemoveCircle.xaml.cs">
       <DependentUpon>RemoveCircle.xaml</DependentUpon>
     </Compile>
